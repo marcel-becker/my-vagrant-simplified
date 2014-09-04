@@ -154,6 +154,47 @@ package "thewidgetfactory"
 package "calendar-indicator"
 package "sublime-text"
 package "python-software-properties"
+package "ipython"
+
+package "maven"
+package "libsnappy-dev"
+package "python-pip"
+package "libssl-dev"
+package "openjdk-7-jdk"
+package "ansible"
+package "python-apt"
+package "lua5.2"
+package "liblua5.2-0"
+package "liblua5.2-dev"
+
+
+remote_file "luarocks distribution, v. 2.1.2" do
+  path   "#{Chef::Config[:file_cache_path]}/luarocks-2.1.2.tar.gz"
+  source "http://luarocks.org/releases/luarocks-2.1.2.tar.gz"
+  not_if { ::File.exists? "#{Chef::Config[:file_cache_path]}/luarocks-2.1.2.tar.gz" }
+end
+
+execute "Unpack luarocks distribution" do
+  cwd     Chef::Config[:file_cache_path]
+  command "tar xzf #{Chef::Config[:file_cache_path]}/luarocks-2.1.2.tar.gz"
+  not_if  { ::File.directory? "#{Chef::Config[:file_cache_path]}/luarocks-2.1.2" }
+end
+
+bash "Compile luarocks" do
+  cwd "#{Chef::Config[:file_cache_path]}/luarocks-2.1.2"
+
+  code <<-EOH
+    set -x
+    exec >  /var/tmp/chef-luarocks-compile.log
+    exec 2> /var/tmp/chef-luarocks-compile.log
+    ./configure 
+    make
+    make install
+  EOH
+
+  not_if { ::File.exists? "/usr/local/bin/luarocks" }
+end
+
 
 #package "oracle-java7-installer"
 #package "oracle-java7-set-default"
@@ -176,7 +217,7 @@ include_recipe "google-chrome"
 node.default['eclipse']['version'] = 'luna'
 node.default['eclipse']['release_code'] = 'R'
 node.default['eclipse']['suite'] = 'rcp'
-###node.default['eclipse']['url'] = "https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/luna/R/eclipse-rcp-luna-R-linux-gtk-x86_64.tar.gz"
+node.default['eclipse']['url'] = "https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/luna/R/eclipse-rcp-luna-R-linux-gtk-x86_64.tar.gz"
 
 include_recipe "eclipse"
 

@@ -10,22 +10,28 @@ Vagrant.require_plugin "vagrant-omnibus"
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.hostname = "vagrant-development"
-  #config.vm.box = "planx-base-2013-10-04"
-  config.vm.box = "ubuntu-14-04-server.box"
-  #config.vm.box_url = "http://repo.px.net/vagrant/planx-base-2013-10-04.box"
-  config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
-  config.berkshelf.enabled = true
-  config.omnibus.chef_version = :latest
+    config.vm.hostname = "vagrant-development"
+    #config.vm.box = "planx-base-2013-10-04"
+    config.vm.box = "ubuntu-14-04-server.box"
+    #config.vm.box_url = "http://repo.px.net/vagrant/planx-base-2013-10-04.box"
+    config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+    config.berkshelf.enabled = true
+    config.omnibus.chef_version = :latest
 
-  config.vm.synced_folder "/home/becker/src/plan-construction", "/vagrant/plan-construction/"
-  config.vm.provider :virtualbox do |vb, override|
-    vb.gui = true
-    vb.customize ["modifyvm", :id, "--memory", "16000"]
-    vb.customize ["modifyvm", :id, "--cpus", "8"]
-    vb.customize ["modifyvm", :id, "--vram", "40"]
-    override.vm.network :private_network, ip: "33.33.33.66"
-  end
+    if ::File.exists?("/home/becker")
+        config.vm.synced_folder "/home/becker/src/plan-construction", "/vagrant/plan-construction/"
+        config.vm.synced_folder "/home/becker/", "/vagrant/home/", owner: "vagrant", group: "vagrant"
+    elsif ::File.exists?("/User/marcelbecker")
+        config.vm.synced_folder "/User/marcelbecker/src/plan-construction", "/vagrant/plan-construction/"
+        config.vm.synced_folder "/User/marcelbecker/", "/vagrant/home/", owner: "vagrant", group: "vagrant"
+    end
+    config.vm.provider :virtualbox do |vb, override|
+        vb.gui = true
+        vb.customize ["modifyvm", :id, "--memory", "16000"]
+        vb.customize ["modifyvm", :id, "--cpus", "8"]
+        vb.customize ["modifyvm", :id, "--vram", "40"]
+        override.vm.network :private_network, ip: "33.33.33.66"
+    end
 
 # if you want to spin up the planning server on openstack using 
 # vagrant, uncomment the following lines and make sure you 
