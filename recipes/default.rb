@@ -18,7 +18,7 @@ ssh_known_hosts_entry 'stash.kestrel.edu'
 ssh_known_hosts_entry 'localhost'
 ssh_known_hosts_entry 'github-enterprise.px.ftw'
 
-package "ubuntu-desktop"
+
 
 #apt_repository "emacs24" do
 #  uri "http://emacs.naquadah.org/"
@@ -112,9 +112,11 @@ end
 #package "emacs24"
 #package "emacs24-el"
 #package "emacs24-common-non-dfsg"
-package "xubuntu-desktop"
+#package "ubuntu-desktop"
+#package "xubuntu-desktop"
 #package "ubuntu-gnome-desktop"
 package "build-essential"
+package "linux-headers-generic"
 package "synaptic"
 package "unity"
 package "unity-tweak-tool"
@@ -155,6 +157,9 @@ package "calendar-indicator"
 package "sublime-text"
 package "python-software-properties"
 package "ipython"
+#package "virtualbox-guest-dkms"
+#package "virtualbox-guest-utils"
+#package "virtualbox-guest-x11"
 
 package "maven"
 package "libsnappy-dev"
@@ -211,55 +216,73 @@ end
 
 include_recipe "emacs24-ppa"
 include_recipe "java"
-include_recipe "dropbox"
+include_recipe "my-vagrant-development::dropbox"
 include_recipe "google-chrome"
 
-node.default['eclipse']['version'] = 'luna'
-node.default['eclipse']['release_code'] = 'R'
-node.default['eclipse']['suite'] = 'rcp'
-node.default['eclipse']['url'] = "https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/luna/R/eclipse-rcp-luna-R-linux-gtk-x86_64.tar.gz"
-
-include_recipe "eclipse"
 
 
-# eclipse_mirror_site = "http://www.mirrorservice.org/sites/download.eclipse.org/eclipseMirror/technology/epp/downloads/release/kepler/R"
-# eclipse_file = "eclipse-rcp-kepler-R-linux-gtk-x86_64.tar.gz"
-# script "install_eclipse" do
-#   interpreter "bash"
-#   user "root"
-#   cwd "/tmp/"
-#   code <<-EOH
-#   rm -rf /opt/eclipse
-#   wget #{eclipse_mirror_site}/#{eclipse_file}
-#   tar -zxvf #{eclipse_file}
-#   cp -r eclipse /opt
-#   cd /usr/local/bin
-#   ln -fs /opt/eclipse/eclipse
-#   EOH
-#   only_if do ! File.exists?("/opt/eclipse/eclipse") end
-# end
+#node.default['eclipse']['version'] = 'luna'
+#node.default['eclipse']['release_code'] = 'R'
+#node.default['eclipse']['suite'] = 'rcp'
+#node.default['eclipse']['url'] = "http://developer.eclipsesource.com/technology/epp/luna/eclipse-rcp-luna-R-linux-gtk-x86_64.tar.gz""
 
-# script "install_eclipse_icon" do
-#   interpreter "bash"
-#   user "root"
-#   cwd "/tmp/"
-#   code <<-EOH
-# touch eclipse-desktop
-# echo "[Desktop Entry]
-#                 Name=Eclipse
-#                 Type=Application
-#                 Exec=/opt/eclipse/eclipse
-#                 Terminal=false
-#                 Icon=/opt/eclipse/icon.xpm
-#                 Comment=Integrated Development Environment
-#                 NoDisplay=false
-#                 Categories=Development;IDE
-#                 Name[en]=eclipse.desktop" >> eclipse-desktop
-# mv eclipse-desktop /usr/share/applications/eclipse.desktop
-#   EOH
-#   only_if do ! File.exists?("/usr/share/applications/eclipse.desktop") end
-# end
+#include_recipe "eclipse"
 
+
+ eclipse_mirror_site = "http://developer.eclipsesource.com/technology/epp/luna"
+ eclipse_file = "eclipse-rcp-luna-R-linux-gtk-x86_64.tar.gz"
+ script "install_eclipse" do
+   interpreter "bash"
+   user "root"
+   cwd "/tmp/"
+   code <<-EOH
+   rm -rf /opt/eclipse
+   wget #{eclipse_mirror_site}/#{eclipse_file}
+   tar -zxvf #{eclipse_file}
+   cp -r eclipse /opt
+   cd /usr/local/bin
+   ln -fs /opt/eclipse/eclipse
+   EOH
+   only_if do ! File.exists?("/opt/eclipse/eclipse") end
+ end
+
+ script "install_eclipse_icon" do
+   interpreter "bash"
+   user "root"
+   cwd "/tmp/"
+   code <<-EOH
+ touch eclipse-desktop
+ echo "[Desktop Entry]
+                 Name=Eclipse
+                 Type=Application
+                 Exec=/opt/eclipse/eclipse
+                 Terminal=false
+                 Icon=/opt/eclipse/icon.xpm
+                 Comment=Integrated Development Environment
+                 NoDisplay=false
+                 Categories=Development;IDE
+                 Name[en]=eclipse.desktop" >> eclipse-desktop
+ mv eclipse-desktop /usr/share/applications/eclipse.desktop
+   EOH
+   only_if do ! File.exists?("/usr/share/applications/eclipse.desktop") end
+ end
+
+script "install_all_dot_files" do
+    interpreter "bash"
+    user "vagrant"
+    group "vagrant"
+    cwd "/home/vagrant"
+    environment ({'HOME' => '/home/vagrant', 'USER' => 'vagrant'})    
+    only_if { ::File.exists?("/vagrant/home/Dropbox") &&  ! ::File.exists?("/home/vagrant/Dropbox") }
+    code <<-EOH
+mkdir /home/vagrant/Dropbox
+cp -r /vagrant/home/Dropbox/.emacs.d /home/vagrant/Dropbox
+cp -r /vagrant/home/.emacs.d /home/vagrant
+cp -r /vagrant/home/.bash* /home/vagrant
+cp -r /vagrant/home/.git* /home/vagrant
+   EOH
+ end
+ 
 
 # sbcl_file = "http://downloads.sourceforge.net/project/sbcl/sbcl/1.1.10/sbcl-1.1.10-x86-64-linux-binary.tar.bz2"
 # script "install_sbcl" do

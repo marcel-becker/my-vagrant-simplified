@@ -1,10 +1,10 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-Vagrant.require_plugin "vagrant-berkshelf"
-Vagrant.require_plugin "nugrant"
-Vagrant.require_plugin "vagrant-vbguest"
-Vagrant.require_plugin "vagrant-omnibus"
+#Vagrant.require_plugin "vagrant-berkshelf"
+#Vagrant.require_plugin "nugrant"
+#Vagrant.require_plugin "vagrant-vbguest"
+#Vagrant.require_plugin "vagrant-omnibus"
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
@@ -12,22 +12,24 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.hostname = "vagrant-development"
     #config.vm.box = "planx-base-2013-10-04"
-    config.vm.box = "ubuntu-14-04-server.box"
+    config.vm.box = "ubuntu-14.04-amd64-from-vagrant-cloud"
     #config.vm.box_url = "http://repo.px.net/vagrant/planx-base-2013-10-04.box"
     config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+    config.vm.box_url = "https://vagrantcloud.com/ubuntu/trusty64/version/1/provider/virtualbox.box"
     config.berkshelf.enabled = true
     config.omnibus.chef_version = :latest
-
+    config.vbguest.auto_update = true
+    
     if ::File.exists?("/home/becker")
         config.vm.synced_folder "/home/becker/src/plan-construction", "/vagrant/plan-construction/"
         config.vm.synced_folder "/home/becker/", "/vagrant/home/", owner: "vagrant", group: "vagrant"
-    elsif ::File.exists?("/User/marcelbecker")
-        config.vm.synced_folder "/User/marcelbecker/src/plan-construction", "/vagrant/plan-construction/"
-        config.vm.synced_folder "/User/marcelbecker/", "/vagrant/home/", owner: "vagrant", group: "vagrant"
+    elsif ::File.exists?("/Users/marcelbecker")
+        config.vm.synced_folder "/Users/marcelbecker/src/px-repos/plan-construction", "/vagrant/plan-construction/"
+        config.vm.synced_folder "/Users/marcelbecker/", "/vagrant/home/", owner: "vagrant", group: "vagrant"
     end
     config.vm.provider :virtualbox do |vb, override|
         vb.gui = true
-        vb.customize ["modifyvm", :id, "--memory", "16000"]
+        vb.customize ["modifyvm", :id, "--memory", "10000"]
         vb.customize ["modifyvm", :id, "--cpus", "8"]
         vb.customize ["modifyvm", :id, "--vram", "40"]
         override.vm.network :private_network, ip: "33.33.33.66"
