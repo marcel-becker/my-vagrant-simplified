@@ -192,7 +192,7 @@ bash "Compile luarocks" do
     set -x
     exec >  /var/tmp/chef-luarocks-compile.log
     exec 2> /var/tmp/chef-luarocks-compile.log
-    ./configure 
+    ./configure
     make
     make install
   EOH
@@ -272,17 +272,18 @@ script "install_all_dot_files" do
     user "vagrant"
     group "vagrant"
     cwd "/home/vagrant"
-    environment ({'HOME' => '/home/vagrant', 'USER' => 'vagrant'})    
-    only_if { ::File.exists?("/vagrant/home/Dropbox") &&  ! ::File.exists?("/home/vagrant/Dropbox") }
+    environment ({'HOME' => '/home/vagrant', 'USER' => 'vagrant'})
+    only_if do File.exists?("/vagrant/home/Dropbox") &&  ! File.exists?("/home/vagrant/Dropbox") end
     code <<-EOH
+echo "Starting to run the bash shell script"
 mkdir /home/vagrant/Dropbox
-cp -r /vagrant/home/Dropbox/.emacs.d /home/vagrant/Dropbox
-cp -r /vagrant/home/.emacs.d /home/vagrant
-cp -r /vagrant/home/.bash* /home/vagrant
-cp -r /vagrant/home/.git* /home/vagrant
+cp -r /vagrant/home/Dropbox/.emacs.d /home/vagrant/Dropbox/
+cp -r /vagrant/home/.emacs.d /home/vagrant/
+cp -r /vagrant/home/.bash* /home/vagrant/
+cp -r /vagrant/home/.git* /home/vagrant/
    EOH
  end
- 
+
 
 # sbcl_file = "http://downloads.sourceforge.net/project/sbcl/sbcl/1.1.10/sbcl-1.1.10-x86-64-linux-binary.tar.bz2"
 # script "install_sbcl" do
