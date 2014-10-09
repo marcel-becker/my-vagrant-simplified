@@ -9,6 +9,7 @@
 
 include_recipe "apt"
 include_recipe "ssh_known_hosts"
+include_recipe "python"
 
 #dist = node['emacs24']['use_unstable'] == true ? "unstable/" : "oldstable/"
 
@@ -129,9 +130,9 @@ package "cmake"
 package "xfce-theme-manager"
 package "libgtk2.0-dev"
 package "gtk-chtheme"
-package "docker"
-package "docker.io"
-package "cairo-dock"
+#package "docker"
+#package "docker.io"
+#package "cairo-dock"
 package "vim-gtk"
 package "compizconfig-settings-manager"
 package "compiz-plugins-extra"
@@ -157,9 +158,17 @@ package "calendar-indicator"
 package "sublime-text"
 package "python-software-properties"
 package "ipython"
+package "msgpack-python"
 #package "virtualbox-guest-dkms"
 #package "virtualbox-guest-utils"
 #package "virtualbox-guest-x11"
+
+package "scapy"
+package "python-twisted"
+package "python-boto"
+package "python-zodb"
+package "bridge-utils"
+
 
 package "maven"
 package "libsnappy-dev"
@@ -172,21 +181,24 @@ package "lua5.2"
 package "liblua5.2-0"
 package "liblua5.2-dev"
 
+python_pip "gunicorn"
+python_pip "twisted"
+
 
 remote_file "luarocks distribution, v. 2.1.2" do
-  path   "#{Chef::Config[:file_cache_path]}/luarocks-2.1.2.tar.gz"
-  source "http://luarocks.org/releases/luarocks-2.1.2.tar.gz"
-  not_if { ::File.exists? "#{Chef::Config[:file_cache_path]}/luarocks-2.1.2.tar.gz" }
+  path   "#{Chef::Config[:file_cache_path]}/luarocks-2.2.0.tar.gz"
+  source "http://luarocks.org/releases/luarocks-2.2.0.tar.gz"
+  not_if { ::File.exists? "#{Chef::Config[:file_cache_path]}/luarocks-2.2.0.tar.gz" }
 end
 
 execute "Unpack luarocks distribution" do
   cwd     Chef::Config[:file_cache_path]
-  command "tar xzf #{Chef::Config[:file_cache_path]}/luarocks-2.1.2.tar.gz"
-  not_if  { ::File.directory? "#{Chef::Config[:file_cache_path]}/luarocks-2.1.2" }
+  command "tar xzf #{Chef::Config[:file_cache_path]}/luarocks-2.2.0.tar.gz"
+  not_if  { ::File.directory? "#{Chef::Config[:file_cache_path]}/luarocks-2.2.0" }
 end
 
 bash "Compile luarocks" do
-  cwd "#{Chef::Config[:file_cache_path]}/luarocks-2.1.2"
+  cwd "#{Chef::Config[:file_cache_path]}/luarocks-2.2.0"
 
   code <<-EOH
     set -x
@@ -196,7 +208,6 @@ bash "Compile luarocks" do
     make
     make install
   EOH
-
   not_if { ::File.exists? "/usr/local/bin/luarocks" }
 end
 
@@ -204,13 +215,34 @@ end
 #package "oracle-java7-installer"
 #package "oracle-java7-set-default"
 
-script "install_docker" do
+script "download_and_install_docker" do
+    cwd Chef::Config[:file_cache_path]
+   interpreter "bash"
+   user "root"
+   code <<-EOH
+curl -sSL https://get.docker.io/ubuntu/ | sudo sh
+   EOH
+end
+
+script "link_docker_file" do
+    cwd Chef::Config[:file_cache_path]
+   interpreter "bash"
+   user "root"
+   code <<-EOH
+ln -sf /usr/bin/docker.io /usr/local/bin/docker
+   EOH
+   only_if { ::File.exists? "/usr/bin/docker.io" }
+end
+
+
+script "add_vagrant_user_to_docker_group" do
+    cwd Chef::Config[:file_cache_path]
    interpreter "bash"
    user "root"
 
    code <<-EOH
-ln -sf /usr/bin/docker.io /usr/local/bin/docker
-sed -i '$acomplete -F _docker docker' /etc/bash_completion.d/docker.io
+groupadd docker
+gpasswd -a vagrant docker
    EOH
 end
 
@@ -228,6 +260,55 @@ include_recipe "google-chrome"
 
 #include_recipe "eclipse"
 
+
+bash "install_lua_busted" do
+   user "root"
+   code <<-EOH
+luarocks install busted
+   EOH
+end
+
+# bash "install_lua_libreadline_dev" do
+#    user "root"
+#    code <<-EOH
+# luarocks install libreadline-dev
+#    EOH
+# end
+
+bash "install_lua_luasocket" do
+   user "root"
+   code <<-EOH
+luarocks install luasocket
+   EOH
+end
+
+bash "install_lua_copas" do
+   user "root"
+   code <<-EOH
+luarocks install copas
+   EOH
+end
+
+bash "install_lua_copastimer" do
+   user "root"
+   code <<-EOH
+luarocks install copastimer
+   EOH
+end
+
+bash "install_lua_uuid" do
+   user "root"
+   code <<-EOH
+luarocks install uuid
+   EOH
+end
+
+bash "install_lua_messagepack" do
+   user "root"
+   code <<-EOH
+luarocks install lua-messagepack
+   EOH
+end
 
  eclipse_mirror_site = "http://developer.eclipsesource.com/technology/epp/luna"
  eclipse_file = "eclipse-rcp-luna-R-linux-gtk-x86_64.tar.gz"
