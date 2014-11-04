@@ -83,7 +83,13 @@ apt_repository "sublime-text-2" do
   keyserver "keyserver.ubuntu.com"
 end
 
-
+apt_repository "x2go-repo" do
+  uri "http://ppa.launchpad.net/x2go/stable/ubuntu"
+  distribution node['lsb']['codename'] #"precise"
+  components ["main"]
+  key "0A53F9FD"
+  keyserver "keyserver.ubuntu.com"
+end
 
 
 
@@ -171,7 +177,9 @@ package "python-apt"
 package "lua5.2"
 package "liblua5.2-0"
 package "liblua5.2-dev"
-
+package "x2goserver"
+package "x2goserver-xsession"
+package "x2goclient"
 
 remote_file "luarocks distribution, v. 2.1.2" do
   path   "#{Chef::Config[:file_cache_path]}/luarocks-2.1.2.tar.gz"
