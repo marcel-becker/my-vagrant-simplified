@@ -26,4 +26,4 @@ Provisions a virtual box vm with all the packages needed for local development.
 
 # Author
 
-Author:: Marcel Becker (<marcelbecker@derecho.io>)
+Author:: Marcel Becker (<marcelbecker@gmail.com>)
