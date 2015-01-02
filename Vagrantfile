@@ -70,7 +70,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 "suite" => "rcp"
             }
         }
-        chef.add_recipe "my-vagrant-development"
+        chef.add_recipe "my-vagrant-simplified"
         chef.log_level = :debug
     end
 end

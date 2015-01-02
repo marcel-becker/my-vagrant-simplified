@@ -1,4 +1,4 @@
-name             'my-vagrant-development'
+name             'my-vagrant-simplified'
 maintainer       'Marcel Becker'
 maintainer_email 'marcelbecker@derecho.io'
 license          'All rights reserved'
@@ -10,8 +10,10 @@ depends "apt"
 depends "python"
 depends "git"
 depends "emacs24-ppa"
+depends "chef-solo-search"
 depends "ssh_known_hosts"
 depends "java"
 depends "eclipse"
 ###depends "dropbox"
 depends "google-chrome"
+depends "user"

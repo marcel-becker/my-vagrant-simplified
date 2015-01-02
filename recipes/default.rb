@@ -8,16 +8,16 @@
 #
 
 include_recipe "apt"
-include_recipe "ssh_known_hosts"
 include_recipe "python"
+include_recipe "chef-solo-search"
 
 #dist = node['emacs24']['use_unstable'] == true ? "unstable/" : "oldstable/"
-
-ssh_known_hosts_entry 'github.com'
-ssh_known_hosts_entry 'svn.kestrel.edu'
-ssh_known_hosts_entry 'stash.kestrel.edu'
-ssh_known_hosts_entry 'localhost'
-ssh_known_hosts_entry 'github-enterprise.px.ftw'
+# include_recipe "ssh_known_hosts"
+# ssh_known_hosts_entry 'github.com'
+# ssh_known_hosts_entry 'svn.kestrel.edu'
+# ssh_known_hosts_entry 'stash.kestrel.edu'
+# ssh_known_hosts_entry 'localhost'
+# ssh_known_hosts_entry 'github-enterprise.px.ftw'
 
 
 
@@ -43,6 +43,21 @@ ssh_known_hosts_entry 'github-enterprise.px.ftw'
 #   key "3B1510FD"
 #   keyserver "keyserver.ubuntu.com"
 # end
+
+# use openssl passwd -1 "theplaintextpassword"
+# to generate password
+include_recipe 'user'
+user_account 'becker' do
+    shell '/bin/bash'
+    ssh_keygen 'true'
+    password '$1$qGG/CvFp$gA32u2fe0yt52GyVsehQ2/'
+    #create_group 'becker'
+    #gid 'becker'
+    home '/home/becker'
+    manage_home true
+    action :create
+end
+
 
 apt_repository "gnome-themes" do
   uri "http://ppa.launchpad.net/upubuntu-com/gtk3/ubuntu"
@@ -92,8 +107,6 @@ apt_repository "x2go-repo" do
   keyserver "keyserver.ubuntu.com"
 end
 
-
-
 # apt_repository "java" do
 #   uri "http://ppa.launchpad.net/webupd8team/java/ubuntu"
 #   distribution "precise"
@@ -101,9 +114,6 @@ end
 #   key "EEA14866"
 #   keyserver "keyserver.ubuntu.com"
 # end
-
-
-
 
 #execute "Accept_Oracle_License" do
 #command "echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections"
@@ -115,12 +125,11 @@ end
 #action :run
 #end
 
-
 #package "emacs24"
 #package "emacs24-el"
 #package "emacs24-common-non-dfsg"
 #package "ubuntu-desktop"
-#package "xubuntu-desktop"
+package "xubuntu-desktop"
 #package "ubuntu-gnome-desktop"
 package "build-essential"
 package "linux-headers-generic"
@@ -181,12 +190,12 @@ package "maven"
 package "libsnappy-dev"
 package "python-pip"
 package "libssl-dev"
-package "openjdk-7-jdk"
+#package "openjdk-7-jdk"
 package "ansible"
 package "python-apt"
-package "lua5.2"
-package "liblua5.2-0"
-package "liblua5.2-dev"
+#package "lua5.2"
+#package "liblua5.2-0"
+#package "liblua5.2-dev"
 
 package "x2goserver"
 package "x2goserver-xsession"
@@ -197,31 +206,30 @@ python_pip "twisted"
 
 
 
-remote_file "luarocks distribution, v. 2.1.2" do
-  path   "#{Chef::Config[:file_cache_path]}/luarocks-2.2.0.tar.gz"
-  source "http://luarocks.org/releases/luarocks-2.2.0.tar.gz"
-  not_if { ::File.exists? "#{Chef::Config[:file_cache_path]}/luarocks-2.2.0.tar.gz" }
-end
+#remote_file "luarocks distribution, v. 2.1.2" do
+#  path   "#{Chef::Config[:file_cache_path]}/luarocks-2.2.0.tar.gz"
+#  source "http://luarocks.org/releases/luarocks-2.2.0.tar.gz"
+#  not_if { ::File.exists? "#{Chef::Config[:file_cache_path]}/luarocks-2.2.0.tar.gz" }
+#end
 
-execute "Unpack luarocks distribution" do
-  cwd     Chef::Config[:file_cache_path]
-  command "tar xzf #{Chef::Config[:file_cache_path]}/luarocks-2.2.0.tar.gz"
-  not_if  { ::File.directory? "#{Chef::Config[:file_cache_path]}/luarocks-2.2.0" }
-end
+#execute "Unpack luarocks distribution" do
+#  cwd     Chef::Config[:file_cache_path]
+#  command "tar xzf #{Chef::Config[:file_cache_path]}/luarocks-2.2.0.tar.gz"
+#  not_if  { ::File.directory? "#{Chef::Config[:file_cache_path]}/luarocks-2.2.0" }
+#end
 
-bash "Compile luarocks" do
-  cwd "#{Chef::Config[:file_cache_path]}/luarocks-2.2.0"
-
-  code <<-EOH
-    set -x
-    exec >  /var/tmp/chef-luarocks-compile.log
-    exec 2> /var/tmp/chef-luarocks-compile.log
-    ./configure
-    make
-    make install
-  EOH
-  not_if { ::File.exists? "/usr/local/bin/luarocks" }
-end
+#bash "Compile luarocks" do
+#  cwd "#{Chef::Config[:file_cache_path]}/luarocks-2.2.0"
+#  code <<-EOH
+#    set -x
+#    exec >  /var/tmp/chef-luarocks-compile.log
+#    exec 2> /var/tmp/chef-luarocks-compile.log
+#    ./configure
+#    make
+#    make install
+#  EOH
+#  not_if { ::File.exists? "/usr/local/bin/luarocks" }
+#end
 
 
 #package "oracle-java7-installer"
@@ -255,12 +263,13 @@ script "add_vagrant_user_to_docker_group" do
    code <<-EOH
 groupadd docker
 gpasswd -a vagrant docker
+gpasswd -a becker docker
    EOH
 end
 
 include_recipe "emacs24-ppa"
 include_recipe "java"
-include_recipe "my-vagrant-development::dropbox"
+include_recipe "my-vagrant-simplified::dropbox"
 include_recipe "google-chrome"
 
 
@@ -273,12 +282,12 @@ include_recipe "google-chrome"
 #include_recipe "eclipse"
 
 
-bash "install_lua_busted" do
-   user "root"
-   code <<-EOH
-luarocks install busted
-   EOH
-end
+#bash "install_lua_busted" do
+#   user "root"
+#   code <<-EOH
+#luarocks install busted
+#   EOH
+#end
 
 # bash "install_lua_libreadline_dev" do
 #    user "root"
@@ -287,40 +296,40 @@ end
 #    EOH
 # end
 
-bash "install_lua_luasocket" do
-   user "root"
-   code <<-EOH
-luarocks install luasocket
-   EOH
-end
+#bash "install_lua_luasocket" do
+#   user "root"
+#   code <<-EOH
+#luarocks install luasocket
+#   EOH
+#end
 
-bash "install_lua_copas" do
-   user "root"
-   code <<-EOH
-luarocks install copas
-   EOH
-end
+#bash "install_lua_copas" do
+#   user "root"
+#   code <<-EOH
+#luarocks install copas
+#   EOH
+#end
 
-bash "install_lua_copastimer" do
-   user "root"
-   code <<-EOH
-luarocks install copastimer
-   EOH
-end
+#bash "install_lua_copastimer" do
+#   user "root"
+#   code <<-EOH
+#luarocks install copastimer
+#   EOH
+#end
 
-bash "install_lua_uuid" do
-   user "root"
-   code <<-EOH
-luarocks install uuid
-   EOH
-end
+#bash "install_lua_uuid" do
+#   user "root"
+#   code <<-EOH
+#luarocks install uuid
+#   EOH
+#end
 
-bash "install_lua_messagepack" do
-   user "root"
-   code <<-EOH
-luarocks install lua-messagepack
-   EOH
-end
+#bash "install_lua_messagepack" do
+#   user "root"
+#   code <<-EOH
+#luarocks install lua-messagepack
+#   EOH
+#end
 
  eclipse_mirror_site = "http://developer.eclipsesource.com/technology/epp/luna"
  eclipse_file = "eclipse-rcp-luna-R-linux-gtk-x86_64.tar.gz"
@@ -362,20 +371,22 @@ end
 
 script "install_all_dot_files" do
     interpreter "bash"
-    user "vagrant"
-    group "vagrant"
-    cwd "/home/vagrant"
-    environment ({'HOME' => '/home/vagrant', 'USER' => 'vagrant'})
-    only_if do File.exists?("/vagrant/home/Dropbox") &&  ! File.exists?("/home/vagrant/Dropbox") end
+    user "becker"
+    group "becker"
+    cwd "/home/becker"
+    environment ({'HOME' => '/home/becker', 'USER' => 'becker'})
+    only_if do File.exists?("/vagrant/home/Dropbox") &&  ! File.exists?("/home/becker/Dropbox") end
     code <<-EOH
 echo "Starting to run the bash shell script"
-mkdir /home/vagrant/Dropbox
-cp -r /vagrant/home/Dropbox/.emacs.d /home/vagrant/Dropbox/
-cp -r /vagrant/home/.emacs.d /home/vagrant/
-cp -r /vagrant/home/.bash* /home/vagrant/
-cp -r /vagrant/home/.git* /home/vagrant/
+mkdir /home/becker/Dropbox
+cp -r /home/vagrant/home/Dropbox/.emacs.d /home/becker/Dropbox/
+cp -r /home/vagrant/home/.emacs.d /home/becker/
+cp -r /home/vagrant/home/.bash* /home/becker/
+cp -r /home/vagrant/home/.git* /home/becker/
+cp -r /home/vagrant/home/Dropbox/Linux_Config/Home/becker/.* /home/becker/
    EOH
  end
+
 
 
 # sbcl_file = "http://downloads.sourceforge.net/project/sbcl/sbcl/1.1.10/sbcl-1.1.10-x86-64-linux-binary.tar.bz2"
