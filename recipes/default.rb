@@ -517,3 +517,22 @@ cp -r /home/vagrant/home/Dropbox/Linux_Config/Home/becker/.* /home/becker/
 #   destination "/home/planware/src/planware"
 #   action :checkout
 # end
+
+
+ script "install_emacs24_from_source" do
+   interpreter "bash"
+   user "root"
+   cwd "/tmp/"
+   code <<-EOH
+cd /tmp
+mkdir emacs-src && cd emacs-src
+wget http://mirror.team-cymru.org/gnu/emacs/emacs-24.4.tar.gz
+tar xvf emacs-24.4.tar.gz
+apt-get build-dep emacs24 -y
+cd emacs-24.4
+./configure
+make
+make install
+   EOH
+   only_if do ! File.exists?("/usr/local/bin/emacs24.4") end
+ end
