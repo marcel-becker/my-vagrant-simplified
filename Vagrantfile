@@ -15,10 +15,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     if ::File.exists?("/home/becker")
         config.vm.synced_folder "/home/becker/src/plan-construction", "/home/vagrant/src/plan-construction/" , owner: "vagrant", group: "vagrant"
-        config.vm.synced_folder "/home/becker/", "/home/vagrant/home/", owner: "vagrant", group: "vagrant"
+        config.vm.synced_folder "/home/becker/", "/home/vagrant/home/", owner: "vagrant", group: "vagrant", mount_options: ["dmode=777,fmode=777"]
     elsif ::File.exists?("/Users/marcelbecker")
         config.vm.synced_folder "/Users/marcelbecker/src/plan-construction", "/home/vagrant/src/plan-construction/" , owner: "vagrant", group: "vagrant"
-        config.vm.synced_folder "/Users/marcelbecker/", "/home/vagrant/home/", owner: "vagrant", group: "vagrant"
+        config.vm.synced_folder "/Users/marcelbecker/", "/home/vagrant/home/", owner: "vagrant", group: "vagrant",  mount_options: ["dmode=777,fmode=777"]
     end
     config.vm.provider :virtualbox do |vb, override|
         vb.gui = true

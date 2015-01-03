@@ -11,6 +11,17 @@ include_recipe "apt"
 include_recipe "python"
 include_recipe "chef-solo-search"
 
+# To get vbox resolution to work correctly you need to re-install the vbgues
+# add a cd rom storage to your machine. In the vbox settings, add an ide controller
+# and add a cd disk.
+# If the mount is not successful, try this:
+# mount /dev/cdrom /mnt
+# cd /mnt
+# ./VBoxLinuxAdditions.run
+# reboot
+
+
+
 #dist = node['emacs24']['use_unstable'] == true ? "unstable/" : "oldstable/"
 # include_recipe "ssh_known_hosts"
 # ssh_known_hosts_entry 'github.com'
@@ -203,6 +214,7 @@ package "x2goclient"
 
 python_pip "gunicorn"
 python_pip "twisted"
+python_pip "virtualenvwrapper"
 
 
 
@@ -267,12 +279,20 @@ gpasswd -a becker docker
    EOH
 end
 
+script "add_becker_user_to_sudoers" do
+   interpreter "bash"
+   user "root"
+   only_if do ! File.exists?("/etc/sudoers.d/becker") end
+   code <<-EOH
+echo 'becker ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/becker
+chmod 0440 /etc/sudoers.d/becker
+   EOH
+end
+
 include_recipe "emacs24-ppa"
 include_recipe "java"
 include_recipe "my-vagrant-simplified::dropbox"
 include_recipe "google-chrome"
-
-
 
 #node.default['eclipse']['version'] = 'luna'
 #node.default['eclipse']['release_code'] = 'R'
@@ -369,13 +389,35 @@ include_recipe "google-chrome"
    only_if do ! File.exists?("/usr/share/applications/eclipse.desktop") end
  end
 
+
+script "install_all_dot_files" do
+    interpreter "bash"
+    #user "becker"
+    #group "becker"
+    cwd "/home/becker"
+    #environment ({'HOME' => '/home/becker', 'USER' => 'becker'})
+    only_if do File.exists?("/home/vagrant/home/Dropbox") &&  ! File.exists?("/home/becker/Dropbox") end
+    code <<-EOH
+echo "Starting to run the bash shell script"
+mkdir /home/becker/Dropbox
+cp -r /home/vagrant/home/Dropbox/.emacs.d /home/becker/Dropbox/
+cp -r /home/vagrant/home/.emacs.d /home/becker/
+cp -r /home/vagrant/home/.bash* /home/becker/
+cp -r /home/vagrant/home/.git* /home/becker/
+cp -r /home/vagrant/home/Dropbox/Linux_Config/Home/becker/.* /home/becker/
+chown -R becker:becker *
+chown -R becker:becker .*
+   EOH
+ end
+
+
 script "install_all_dot_files" do
     interpreter "bash"
     user "becker"
     group "becker"
     cwd "/home/becker"
     environment ({'HOME' => '/home/becker', 'USER' => 'becker'})
-    only_if do File.exists?("/vagrant/home/Dropbox") &&  ! File.exists?("/home/becker/Dropbox") end
+    only_if do File.exists?("/home/vagrant/home/Dropbox") &&  ! File.exists?("/home/becker/Dropbox") end
     code <<-EOH
 echo "Starting to run the bash shell script"
 mkdir /home/becker/Dropbox
