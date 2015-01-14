@@ -390,44 +390,28 @@ include_recipe "google-chrome"
  end
 
 
-script "install_all_dot_files" do
-    interpreter "bash"
-    #user "becker"
-    #group "becker"
-    cwd "/home/becker"
-    #environment ({'HOME' => '/home/becker', 'USER' => 'becker'})
-    only_if do File.exists?("/home/vagrant/home/Dropbox") &&  ! File.exists?("/home/becker/Dropbox") end
-    code <<-EOH
-echo "Starting to run the bash shell script"
-mkdir /home/becker/Dropbox
-cp -r /home/vagrant/home/Dropbox/.emacs.d /home/becker/Dropbox/
-cp -r /home/vagrant/home/.emacs.d /home/becker/
-cp -r /home/vagrant/home/.bash* /home/becker/
-cp -r /home/vagrant/home/.git* /home/becker/
-cp -r /home/vagrant/home/Dropbox/Linux_Config/Home/becker/.* /home/becker/
-chown -R becker:becker *
-chown -R becker:becker .*
-   EOH
- end
+# script "install_all_dot_files" do
+#     interpreter "bash"
+#     #user "becker"
+#     #group "becker"
+#     cwd "/home/becker"
+#     #environment ({'HOME' => '/home/becker', 'USER' => 'becker'})
+#     only_if do File.exists?("/home/vagrant/home/Dropbox") &&  ! File.exists?("/home/becker/Dropbox") end
+#     code <<-EOH
+# echo "Starting to run the bash shell script"
+# mkdir /home/becker/Dropbox
+# cp -r /home/vagrant/home/Dropbox/.emacs.d /home/becker/Dropbox/
+# cp -r /home/vagrant/home/.emacs.d /home/becker/
+# cp -r /home/vagrant/home/.bash* /home/becker/
+# cp -r /home/vagrant/home/.git* /home/becker/
+# cp -r /home/vagrant/home/Dropbox/Linux_Config/Home/becker/.* /home/becker/
+# cd /home/becker
+# chown -R becker:becker *
+# chown -R becker:becker .*
+#    EOH
+#  end
 
 
-script "install_all_dot_files" do
-    interpreter "bash"
-    user "becker"
-    group "becker"
-    cwd "/home/becker"
-    environment ({'HOME' => '/home/becker', 'USER' => 'becker'})
-    only_if do File.exists?("/home/vagrant/home/Dropbox") &&  ! File.exists?("/home/becker/Dropbox") end
-    code <<-EOH
-echo "Starting to run the bash shell script"
-mkdir /home/becker/Dropbox
-cp -r /home/vagrant/home/Dropbox/.emacs.d /home/becker/Dropbox/
-cp -r /home/vagrant/home/.emacs.d /home/becker/
-cp -r /home/vagrant/home/.bash* /home/becker/
-cp -r /home/vagrant/home/.git* /home/becker/
-cp -r /home/vagrant/home/Dropbox/Linux_Config/Home/becker/.* /home/becker/
-   EOH
- end
 
 
 
@@ -535,4 +519,23 @@ make
 make install
    EOH
    only_if do ! File.exists?("/usr/local/bin/emacs24.4") end
+ end
+
+
+script "install_all_dot_files" do
+    interpreter "bash"
+    user "becker"
+    group "becker"
+    cwd "/home/becker"
+    environment ({'HOME' => '/home/becker', 'USER' => 'becker'})
+    only_if do File.exists?("/home/vagrant/home/Dropbox") &&  ! File.exists?("/home/becker/Dropbox") end
+    code <<-EOH
+echo "Starting to run the bash shell script"
+mkdir /home/becker/Dropbox
+cp -r /home/vagrant/home/Dropbox/.emacs.d /home/becker/Dropbox/
+cp -r /home/vagrant/home/.emacs.d /home/becker/
+cp -r /home/vagrant/home/.bash* /home/becker/
+cp -r /home/vagrant/home/.git* /home/becker/
+cp -r /home/vagrant/home/Dropbox/Linux_Config/Home/becker/.* /home/becker/
+   EOH
  end
