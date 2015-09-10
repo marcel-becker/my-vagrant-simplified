@@ -1,4 +1,4 @@
-name             'my-vagrant-simplified'
+name             'rspace-vagrant'
 maintainer       'Marcel Becker'
 maintainer_email 'marcelbecker@gmail.io'
 license          'All rights reserved'
