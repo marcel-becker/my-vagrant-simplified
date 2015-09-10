@@ -20,6 +20,9 @@ vagrant up --provision
 
 Provisions a virtual box vm with all the packages needed for local development.
 
+This builds an ubuntu vbox with xfce/xubuntu desktop manager. 
+It also installs emacs24.5, eclipse, and a several python packages. 
+
 # Attributes
 
 # Recipes
