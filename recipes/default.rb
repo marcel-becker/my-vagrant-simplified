@@ -509,23 +509,25 @@ include_recipe "google-chrome"
 # end
 
 
- script "install_emacs24_from_source" do
+ script "install_emacs24_5_from_source" do
    interpreter "bash"
    user "root"
    cwd "/tmp/"
    code <<-EOH
 cd /tmp
 mkdir emacs-src && cd emacs-src
-wget http://mirror.team-cymru.org/gnu/emacs/emacs-24.4.tar.gz
-tar xvf emacs-24.4.tar.gz
+wget http://mirror.team-cymru.org/gnu/emacs/emacs-24.5.tar.gz
+tar xvf emacs-24.5.tar.gz
 apt-get build-dep emacs24 -y
-cd emacs-24.4
+cd emacs-24.5
 ./configure
 make
 make install
    EOH
-   only_if do ! File.exists?("/usr/local/bin/emacs24.4") end
+   only_if do ! File.exists?("/usr/local/bin/emacs24.5") end
  end
+
+
 
 
 script "install_all_dot_files" do
@@ -551,3 +553,22 @@ echo "cp -r /home/vagrant/home/Dropbox/Linux_Config /home/becker/.config /home/b
 cp -r /home/vagrant/home/Dropbox/Linux_Config /home/becker/.config /home/becker/
    EOH
  end
+
+
+file "/usr/share/applications/Emacs-24.desktop" do
+  content "[Desktop Entry]
+Version=1.0
+Name=Emacs-24
+Exec=env UBUNTU_MENUPROXY=0 /usr/local/bin/emacs
+Terminal=false
+Icon=emacs
+Type=Application
+Categories=IDE
+X-Ayatana-Desktop-Shortcuts=NewWindow
+[NewWindow Shortcut Group]
+Name=New Window
+TargetEnvironment=Unity"
+  owner "root"
+  group "root"
+
+end
