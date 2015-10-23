@@ -547,7 +547,7 @@ echo "cp -r /home/vagrant/home/.bash* /home/becker/"
 cp -r /home/vagrant/home/.bash* /home/becker/
 echo "cp -r /home/vagrant/home/.git* /home/becker/"
 cp -r /home/vagrant/home/.git* /home/becker/
-echo "cp -r /home/vagrant/home/Dropbox/Linux_Config/Home/becker/.config /home/becker/"
-cp -r /home/vagrant/home/Dropbox/Linux_Config/Home/becker/.config /home/becker/
+echo "cp -r /home/vagrant/home/Dropbox/Linux_Config /home/becker/.config /home/becker/"
+cp -r /home/vagrant/home/Dropbox/Linux_Config /home/becker/.config /home/becker/
    EOH
  end

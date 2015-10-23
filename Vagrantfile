@@ -13,10 +13,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.omnibus.chef_version = :latest
     config.vbguest.auto_update = true
 
-    if ::File.exists?("/home/becker")
+    if ::File.exist?("/home/becker")
         config.vm.synced_folder "/home/becker/src/plan-construction", "/home/vagrant/src/plan-construction/" , owner: "vagrant", group: "vagrant"
         config.vm.synced_folder "/home/becker/", "/home/vagrant/home/", owner: "vagrant", group: "vagrant", mount_options: ["dmode=777,fmode=777"]
-    elsif ::File.exists?("/Users/marcelbecker")
+    elsif ::File.exist?("/Users/marcelbecker")
         config.vm.synced_folder "/Users/marcelbecker/src/plan-construction", "/home/vagrant/src/plan-construction/" , owner: "vagrant", group: "vagrant"
         config.vm.synced_folder "/Users/marcelbecker/", "/home/vagrant/home/", owner: "vagrant", group: "vagrant",  mount_options: ["dmode=777,fmode=777"]
     end
