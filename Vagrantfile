@@ -6,20 +6,28 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.hostname = "rspace-vagrant"
-    config.vm.box = "ubuntu-14.04-amd64-from-vagrant-cloud"
-    config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
-    config.vm.box_url = "https://vagrantcloud.com/ubuntu/trusty64/version/1/provider/virtualbox.box"
+    config.vm.box = "ubuntu-wily64"
+    config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/wily/current/wily-server-cloudimg-amd64-vagrant-disk1.box"
+    #config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+    #config.vm.box_url = "https://vagrantcloud.com/ubuntu/trusty64/version/1/provider/virtualbox.box"
     config.berkshelf.enabled = true
     config.omnibus.chef_version = :latest
     config.vbguest.auto_update = true
 
+
+
     if ::File.exists?("/home/becker")
-        config.vm.synced_folder "/home/becker/src/plan-construction", "/home/vagrant/src/plan-construction/" , owner: "vagrant", group: "vagrant"
+        config.vm.synced_folder "/home/becker/src/plan-construction", "/home/becker/src/plan-construction/" , owner: "becker", group: "becker"
         config.vm.synced_folder "/home/becker/", "/home/vagrant/home/", owner: "vagrant", group: "vagrant", mount_options: ["dmode=777,fmode=777"]
     elsif ::File.exists?("/Users/marcelbecker")
-        config.vm.synced_folder "/Users/marcelbecker/src/plan-construction", "/home/vagrant/src/plan-construction/" , owner: "vagrant", group: "vagrant"
-        config.vm.synced_folder "/Users/marcelbecker/", "/home/vagrant/home/", owner: "vagrant", group: "vagrant",  mount_options: ["dmode=777,fmode=777"]
+        config.vm.synced_folder "/Users/marcelbecker/src/rspace", "/home/becker/src/rspace/" , owner: "vagrant", group: "vagrant"
+        config.vm.synced_folder "/Users/marcelbecker/src/rspace-eclipse", "/home/becker/src/rspace-eclipse/" , owner: "vagrant", group: "vagrant"
+        config.vm.synced_folder "/Users/marcelbecker", "/home/becker/home/", owner: "vagrant", group: "vagrant",  mount_options: ["dmode=777,fmode=777"]
+        #config.vm.synced_folder "/Users/marcelbecker/", "/home/vagrant/home/", owner: "vagrant", group: "vagrant",  mount_options: ["dmode=777,fmode=777"]
     end
+
+    config.vm.provision :shell, inline: 'mkdir -p /tmp/vagrant-chef/cookbooks/nodes'
+
     config.vm.provider :virtualbox do |vb, override|
         vb.gui = true
         vb.customize ["modifyvm", :id, "--memory", "10000"]
@@ -57,10 +65,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #  end
 
     config.vm.provision :chef_solo do |chef|
+        chef.channel = "stable"
+        chef.version = '12.10.24'
         chef.json = {
             "java" => {
                 "install_flavor" => "oracle",
-                "jdk_version" => 7,
+                "jdk_version" => 8,
                 "oracle" => {
                     "accept_oracle_download_terms" => true
                 }

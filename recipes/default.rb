@@ -163,15 +163,15 @@ package "vim-gtk"
 package "compizconfig-settings-manager"
 package "compiz-plugins-extra"
 package "terminator"
-package "xfwm4-composite-editor"
+#package "xfwm4-composite-editor"
 package "xfwm4-themes"
 package "gnome-tweak-tool"
 #package "gnome-shell-extensions"
 
-package "unity"
-package "unity-tweak-tool"
-package "unity8"
-package "ubuntu-desktop"
+#package "unity"
+#package "unity-tweak-tool"
+#package "unity8"
+#package "ubuntu-desktop"
 
 package "elementary"
 package "zukitwo"
@@ -202,14 +202,38 @@ package "python-boto"
 package "python-zodb"
 package "bridge-utils"
 
+script "download_and_install_pip_with_easy_install" do
+    cwd Chef::Config[:file_cache_path]
+   interpreter "bash"
+   user "root"
+   code <<-EOH
+easy_install --upgrade pip
+   EOH
+end
 
-package "maven"
+script "download_and_install_pip_with_easy_install" do
+    cwd Chef::Config[:file_cache_path]
+   interpreter "bash"
+   user "root"
+   code <<-EOH
+apt-get purge -y maven
+wget http://apache.cs.utah.edu/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
+tar -zxf apache-maven-3.3.9-bin.tar.gz -C /usr/local
+#cp -R apache-maven-3.3.9 /usr/local
+ln -s /usr/local/apache-maven-3.3.3/bin/mvn /usr/bin/mvn
+echo "export M2_HOME=/usr/local/apache-maven-3.3.9" >> ~vagrant/.bashrc
+   EOH
+end
+
+
+
 package "libsnappy-dev"
 package "python-pip"
 package "libssl-dev"
 #package "openjdk-7-jdk"
 package "ansible"
 package "python-apt"
+package "virtualenv"
 #package "lua5.2"
 #package "liblua5.2-0"
 #package "liblua5.2-dev"
@@ -217,6 +241,9 @@ package "python-apt"
 package "x2goserver"
 package "x2goserver-xsession"
 package "x2goclient"
+
+package "apt-transport-https"
+package "ca-certificates"
 
 python_pip "gunicorn"
 python_pip "twisted"
@@ -253,24 +280,44 @@ python_pip "virtualenvwrapper"
 #package "oracle-java7-installer"
 #package "oracle-java7-set-default"
 
+script "download_and_install_virtualbox" do
+    cwd Chef::Config[:file_cache_path]
+   interpreter "bash"
+   user "root"
+   code <<-EOH
+#apt-add-repository "deb http://download.virtualbox.org/virtualbox/debian vivid contrib"
+#wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | apt-key add -
+#apt-get update
+#apt-get install dkms
+#apt-get install -y virtualbox-5.0
+apt-get install -y virtualbox
+   EOH
+end
+
 script "download_and_install_docker" do
     cwd Chef::Config[:file_cache_path]
    interpreter "bash"
    user "root"
    code <<-EOH
-curl -sSL https://get.docker.io/ubuntu/ | sudo sh
+apt-get install linux-image-extra-$(uname -r) -y
+apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+echo deb https://apt.dockerproject.org/repo ubuntu-wily main > /etc/apt/sources.list.d/docker.list
+apt-get update
+apt-get install docker-engine -y
+#curl -sSL https://get.docker.io/ubuntu/ | sudo sh
    EOH
 end
 
-script "link_docker_file" do
-    cwd Chef::Config[:file_cache_path]
-   interpreter "bash"
-   user "root"
-   code <<-EOH
-ln -sf /usr/bin/docker.io /usr/local/bin/docker
-   EOH
-   only_if { ::File.exists? "/usr/bin/docker.io" }
-end
+# script "link_docker_file" do
+#     cwd Chef::Config[:file_cache_path]
+#    interpreter "bash"
+#    user "root"
+#    code <<-EOH
+
+# ln -sf /usr/bin/docker.io /usr/local/bin/docker
+#    EOH
+#    only_if { ::File.exists? "/usr/bin/docker.io" }
+# end
 
 
 script "add_vagrant_user_to_docker_group" do
@@ -295,8 +342,8 @@ chmod 0440 /etc/sudoers.d/becker
    EOH
 end
 
-include_recipe "emacs24-ppa"
-include_recipe "java"
+#include_recipe "emacs24-ppa"
+#include_recipe "java"
 include_recipe "rspace-vagrant::dropbox"
 include_recipe "google-chrome"
 
@@ -357,8 +404,25 @@ include_recipe "google-chrome"
 #   EOH
 #end
 
- eclipse_mirror_site = "http://developer.eclipsesource.com/technology/epp/luna"
- eclipse_file = "eclipse-rcp-luna-R-linux-gtk-x86_64.tar.gz"
+ script "install_eclipse" do
+   interpreter "bash"
+   user "root"
+   cwd "/tmp/"
+   code <<-EOH
+add-apt-repository ppa:git-core/ppa
+add-apt-repository ppa:webupd8team/java
+apt-get update
+apt-get install -y git curl
+echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+apt-get install -y oracle-java8-installer git
+apt-get clean && apt-get autoclean -y && apt-get autoremove -y
+   EOH
+   only_if do ! File.exists?("/opt/eclipse/eclipse") end
+ end
+
+##http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/mars/2/eclipse-jee-mars-2-win32-x86_64.zip
+ eclipse_mirror_site = "http://developer.eclipsesource.com/technology/epp/mars"
+ eclipse_file = "eclipse-rcp-mars-R-linux-gtk-x86_64.tar.gz"
  script "install_eclipse" do
    interpreter "bash"
    user "root"
@@ -557,20 +621,32 @@ script "install_all_dot_files" do
     group "becker"
     cwd "/home/becker"
     environment ({'HOME' => '/home/becker', 'USER' => 'becker'})
-    only_if do File.exists?("/home/vagrant/home/Dropbox") &&  ! File.exists?("/home/becker/Dropbox") end
+    only_if do File.exists?("/home/becker/home/Dropbox") &&  ! File.exists?("/home/becker/Dropbox") end
     code <<-EOH
 echo "Starting to run the bash shell script"
 echo "mkdir /home/becker/Dropbox"
 mkdir /home/becker/Dropbox
-echo "cp -r /home/vagrant/home/Dropbox/.emacs.d /home/becker/Dropbox/"
-cp -r /home/vagrant/home/Dropbox/.emacs.d /home/becker/Dropbox/
-echo "cp -r /home/vagrant/home/.emacs.d /home/becker/"
-cp -r /home/vagrant/home/.emacs.d /home/becker/
-echo "cp -r /home/vagrant/home/.bash* /home/becker/"
-cp -r /home/vagrant/home/.bash* /home/becker/
-echo "cp -r /home/vagrant/home/.git* /home/becker/"
-cp -r /home/vagrant/home/.git* /home/becker/
-echo "cp -r /home/vagrant/home/Dropbox/Linux_Config/Home/becker/.config /home/becker/"
-cp -r /home/vagrant/home/Dropbox/Linux_Config/Home/becker/.config /home/becker/
+echo "cp -r /home/becker/home/Dropbox/.emacs.d /home/becker/Dropbox/"
+cp -r /home/vagrant/becker/Dropbox/.emacs.d /home/becker/Dropbox/
+echo "cp -r /home/becker/home/.emacs.d /home/becker/"
+cp -r /home/becker/home/.emacs.d /home/becker/
+echo "cp -r /home/becker/home/.bash* /home/becker/"
+cp -r /home/becker/home/.bash* /home/becker/
+echo "cp -r /home/becker/home/.git* /home/becker/"
+cp -r /home/becker/home/.git* /home/becker/
+echo "cp -r /home/becker/home/Dropbox/Linux_Config/Home/becker/.config /home/becker/"
+cp -r /home/becker/home/Dropbox/Linux_Config/Home/becker/.config /home/becker/
+echo "export M2_HOME=/usr/local/apache-maven-3.3.9" >> /home/becker/.bashrc
+   EOH
+ end
+
+
+script "change_becker_home_ownership" do
+    interpreter "bash"
+    user "root"
+    cwd "/home/becker"
+    code <<-EOH
+chown -R becker:becker /home/becker/*
+chown -R becker:becker /home/becker/.*
    EOH
  end
