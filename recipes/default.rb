@@ -573,7 +573,11 @@ apt-get clean && apt-get autoclean -y && apt-get autoremove -y
 # end
 
 
+<<<<<<< HEAD
 script "install_emacs24_from_source" do
+=======
+ script "install_emacs24_5_from_source" do
+>>>>>>> df4b34643f110fc858c7cacf2ed9f4b57265a5c8
    interpreter "bash"
    user "root"
    cwd "/tmp/"
@@ -589,6 +593,7 @@ make
 make install
    EOH
    only_if do ! File.exists?("/usr/local/bin/emacs24.5") end
+<<<<<<< HEAD
  end
 
 script "install_emacs24_desktop_launcher" do
@@ -612,7 +617,11 @@ TargetEnvironment=Unity
 EOF
    EOH
    only_if do ! File.exists?("/usr/share/applications/Emacs-24.desktop") end
+=======
+>>>>>>> df4b34643f110fc858c7cacf2ed9f4b57265a5c8
  end
+
+
 
 
 script "install_all_dot_files" do
@@ -626,6 +635,7 @@ script "install_all_dot_files" do
 echo "Starting to run the bash shell script"
 echo "mkdir /home/becker/Dropbox"
 mkdir /home/becker/Dropbox
+<<<<<<< HEAD
 echo "cp -r /home/becker/home/Dropbox/.emacs.d /home/becker/Dropbox/"
 cp -r /home/vagrant/becker/Dropbox/.emacs.d /home/becker/Dropbox/
 echo "cp -r /home/becker/home/.emacs.d /home/becker/"
@@ -648,5 +658,36 @@ script "change_becker_home_ownership" do
     code <<-EOH
 chown -R becker:becker /home/becker/*
 chown -R becker:becker /home/becker/.*
+=======
+echo "cp -r /home/vagrant/home/Dropbox/.emacs.d /home/becker/Dropbox/"
+cp -r /home/vagrant/home/Dropbox/.emacs.d /home/becker/Dropbox/
+echo "cp -r /home/vagrant/home/.emacs.d /home/becker/"
+cp -r /home/vagrant/home/.emacs.d /home/becker/
+echo "cp -r /home/vagrant/home/.bash* /home/becker/"
+cp -r /home/vagrant/home/.bash* /home/becker/
+echo "cp -r /home/vagrant/home/.git* /home/becker/"
+cp -r /home/vagrant/home/.git* /home/becker/
+echo "cp -r /home/vagrant/home/Dropbox/Linux_Config /home/becker/.config /home/becker/"
+cp -r /home/vagrant/home/Dropbox/Linux_Config /home/becker/.config /home/becker/
+>>>>>>> df4b34643f110fc858c7cacf2ed9f4b57265a5c8
    EOH
  end
+
+
+file "/usr/share/applications/Emacs-24.desktop" do
+  content "[Desktop Entry]
+Version=1.0
+Name=Emacs-24
+Exec=env UBUNTU_MENUPROXY=0 /usr/local/bin/emacs
+Terminal=false
+Icon=emacs
+Type=Application
+Categories=IDE
+X-Ayatana-Desktop-Shortcuts=NewWindow
+[NewWindow Shortcut Group]
+Name=New Window
+TargetEnvironment=Unity"
+  owner "root"
+  group "root"
+
+end
