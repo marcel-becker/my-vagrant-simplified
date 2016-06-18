@@ -209,19 +209,25 @@ script "download_and_install_pip_with_easy_install" do
    code <<-EOH
 easy_install --upgrade pip
    EOH
+   not_if { ::File.exists? "/usr/local/bin/pip" }
 end
 
-script "download_and_install_pip_with_easy_install" do
+script "download_and_install_maven" do
     cwd Chef::Config[:file_cache_path]
    interpreter "bash"
    user "root"
    code <<-EOH
 apt-get purge -y maven
+rm -rf /usr/bin/mvn
+#apt-add-repository -y -rm ppa:natecarlson/maven3
+#apt-get update
+#apt-get install maven
+
 wget http://apache.cs.utah.edu/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
-tar -zxf apache-maven-3.3.9-bin.tar.gz -C /usr/local
+tar -zxf apache-maven-3.3.9-bin.tar.gz -C /usr/share
 #cp -R apache-maven-3.3.9 /usr/local
-ln -s /usr/local/apache-maven-3.3.3/bin/mvn /usr/bin/mvn
-echo "export M2_HOME=/usr/local/apache-maven-3.3.9" >> ~vagrant/.bashrc
+ln -s /usr/share/apache-maven-3.3.9/bin/mvn /usr/bin/mvn
+echo "export M2_HOME=/usr/share/apache-maven-3.3.9" >> ~becker/.bashrc
    EOH
 end
 
@@ -306,6 +312,7 @@ apt-get update
 apt-get install docker-engine -y
 #curl -sSL https://get.docker.io/ubuntu/ | sudo sh
    EOH
+   only_if do ! File.exists?("/usr/bin/docker") end
 end
 
 # script "link_docker_file" do
@@ -324,7 +331,6 @@ script "add_vagrant_user_to_docker_group" do
     cwd Chef::Config[:file_cache_path]
    interpreter "bash"
    user "root"
-
    code <<-EOH
 groupadd docker
 gpasswd -a vagrant docker
@@ -404,7 +410,7 @@ include_recipe "google-chrome"
 #   EOH
 #end
 
- script "install_eclipse" do
+ script "install_java_and_git" do
    interpreter "bash"
    user "root"
    cwd "/tmp/"
@@ -573,11 +579,7 @@ apt-get clean && apt-get autoclean -y && apt-get autoremove -y
 # end
 
 
-<<<<<<< HEAD
 script "install_emacs24_from_source" do
-=======
- script "install_emacs24_5_from_source" do
->>>>>>> df4b34643f110fc858c7cacf2ed9f4b57265a5c8
    interpreter "bash"
    user "root"
    cwd "/tmp/"
@@ -592,8 +594,7 @@ cd emacs-24.5
 make
 make install
    EOH
-   only_if do ! File.exists?("/usr/local/bin/emacs24.5") end
-<<<<<<< HEAD
+   only_if do ! File.exists?("/usr/local/bin/emacs-24.5") end
  end
 
 script "install_emacs24_desktop_launcher" do
@@ -617,8 +618,6 @@ TargetEnvironment=Unity
 EOF
    EOH
    only_if do ! File.exists?("/usr/share/applications/Emacs-24.desktop") end
-=======
->>>>>>> df4b34643f110fc858c7cacf2ed9f4b57265a5c8
  end
 
 
@@ -635,9 +634,8 @@ script "install_all_dot_files" do
 echo "Starting to run the bash shell script"
 echo "mkdir /home/becker/Dropbox"
 mkdir /home/becker/Dropbox
-<<<<<<< HEAD
 echo "cp -r /home/becker/home/Dropbox/.emacs.d /home/becker/Dropbox/"
-cp -r /home/vagrant/becker/Dropbox/.emacs.d /home/becker/Dropbox/
+cp -r /home/becker/Dropbox/.emacs.d /home/becker/Dropbox/
 echo "cp -r /home/becker/home/.emacs.d /home/becker/"
 cp -r /home/becker/home/.emacs.d /home/becker/
 echo "cp -r /home/becker/home/.bash* /home/becker/"
@@ -646,48 +644,6 @@ echo "cp -r /home/becker/home/.git* /home/becker/"
 cp -r /home/becker/home/.git* /home/becker/
 echo "cp -r /home/becker/home/Dropbox/Linux_Config/Home/becker/.config /home/becker/"
 cp -r /home/becker/home/Dropbox/Linux_Config/Home/becker/.config /home/becker/
-echo "export M2_HOME=/usr/local/apache-maven-3.3.9" >> /home/becker/.bashrc
+echo "export M2_HOME=/usr/share/apache-maven-3.3.9" >> /home/becker/.bashrc
    EOH
  end
-
-
-script "change_becker_home_ownership" do
-    interpreter "bash"
-    user "root"
-    cwd "/home/becker"
-    code <<-EOH
-chown -R becker:becker /home/becker/*
-chown -R becker:becker /home/becker/.*
-=======
-echo "cp -r /home/vagrant/home/Dropbox/.emacs.d /home/becker/Dropbox/"
-cp -r /home/vagrant/home/Dropbox/.emacs.d /home/becker/Dropbox/
-echo "cp -r /home/vagrant/home/.emacs.d /home/becker/"
-cp -r /home/vagrant/home/.emacs.d /home/becker/
-echo "cp -r /home/vagrant/home/.bash* /home/becker/"
-cp -r /home/vagrant/home/.bash* /home/becker/
-echo "cp -r /home/vagrant/home/.git* /home/becker/"
-cp -r /home/vagrant/home/.git* /home/becker/
-echo "cp -r /home/vagrant/home/Dropbox/Linux_Config /home/becker/.config /home/becker/"
-cp -r /home/vagrant/home/Dropbox/Linux_Config /home/becker/.config /home/becker/
->>>>>>> df4b34643f110fc858c7cacf2ed9f4b57265a5c8
-   EOH
- end
-
-
-file "/usr/share/applications/Emacs-24.desktop" do
-  content "[Desktop Entry]
-Version=1.0
-Name=Emacs-24
-Exec=env UBUNTU_MENUPROXY=0 /usr/local/bin/emacs
-Terminal=false
-Icon=emacs
-Type=Application
-Categories=IDE
-X-Ayatana-Desktop-Shortcuts=NewWindow
-[NewWindow Shortcut Group]
-Name=New Window
-TargetEnvironment=Unity"
-  owner "root"
-  group "root"
-
-end

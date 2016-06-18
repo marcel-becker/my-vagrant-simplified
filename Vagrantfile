@@ -15,12 +15,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vbguest.auto_update = true
 
     if ::File.exists?("/home/becker")
-        config.vm.synced_folder "/home/becker/src/plan-construction", "/home/becker/src/plan-construction/" , owner: "becker", group: "becker"
-        config.vm.synced_folder "/home/becker/", "/home/vagrant/home/", owner: "vagrant", group: "vagrant", mount_options: ["dmode=777,fmode=777"]
+        config.vm.synced_folder "/home/becker/src/plan-construction", "/home/becker/src/plan-construction/" , create: true, owner: "becker", group: "becker"
+        config.vm.synced_folder "/home/becker/", "/home/vagrant/home/", create: true, owner: "vagrant", group: "vagrant", mount_options: ["dmode=777,fmode=777"]
     elsif ::File.exists?("/Users/marcelbecker")
-        config.vm.synced_folder "/Users/marcelbecker/src/rspace", "/home/becker/src/rspace/" , owner: "vagrant", group: "vagrant"
-        config.vm.synced_folder "/Users/marcelbecker/src/rspace-eclipse", "/home/becker/src/rspace-eclipse/" , owner: "vagrant", group: "vagrant"
-        config.vm.synced_folder "/Users/marcelbecker", "/home/becker/home/", owner: "vagrant", group: "vagrant",  mount_options: ["dmode=777,fmode=777"]
+        config.vm.synced_folder "/Users/marcelbecker/src/rspace", "/home/becker/src/rspace/" , create: true, owner: "becker", group: "becker"
+        config.vm.synced_folder "/Users/marcelbecker/src/rspace-eclipse", "/home/becker/src/rspace-eclipse/" , create: true, owner: "becker", group: "becker"
+        config.vm.synced_folder "/Users/marcelbecker", "/home/becker/home/", create: true, owner: "becker", group: "becker",  mount_options: ["dmode=777,fmode=777"]
         #config.vm.synced_folder "/Users/marcelbecker/", "/home/vagrant/home/", owner: "vagrant", group: "vagrant",  mount_options: ["dmode=777,fmode=777"]
 
     end
